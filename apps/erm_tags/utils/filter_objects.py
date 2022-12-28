@@ -7,18 +7,20 @@ from apps.erm_tags.models import Tag, Inventory
 
 
 class FilterObjectsMeasure(GetQueriesInfo):
-    def __init__(self, value_filter_type='') -> None:
+    TAGS_VALUES_COUNT = 100
+
+    def __init__(self, value_filter_type: str = '') -> None:
         self.value_filter_type = value_filter_type
         self.tags_values = self.get_tags_values()
 
     def get_tags_values(self) -> QuerySet:
         return (Tag.objects
             .filter(tag_inventories__isnull=False)
-            .values('name', value=F('tag_inventories__value'))
+            .values('name', value=F('tag_inventories__value'))[:self.TAGS_VALUES_COUNT]
         )
     
     @staticmethod
-    def get_queryset(name, value, value_filter_type) -> QuerySet:
+    def get_queryset(name: str, value, value_filter_type: str) -> QuerySet:
         filters_condition = {
             'tags__name': name,
             f'inventory_tags__value{value_filter_type}': value,
@@ -36,7 +38,7 @@ class FilterObjectsMeasure(GetQueriesInfo):
             name = tag_value['name']
             value = tag_value['value']
 
-            if 'icontains' in value_filter_type or 'contains' in value_filter_type:
+            if value_filter_type in ('contains', 'icontains'):
                 indexes = sorted([
                     random.randint(0, len(value) - 1), random.randint(0, len(value) - 1)
                 ])
