@@ -48,5 +48,3 @@ class FilterObjectsMeasure(GetQueriesInfo):
 
             if not inventories.all():
                 raise Exception
-
-            print(inventories.all())
